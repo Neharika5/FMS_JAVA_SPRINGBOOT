@@ -1,0 +1,73 @@
+---------------------------------------------------------
+-- 0. TRUNCATE TABLES (in dependency-safe order)
+---------------------------------------------------------
+TRUNCATE TABLE InventoryLog;
+TRUNCATE TABLE DishChef;
+TRUNCATE TABLE DishIngredient;
+TRUNCATE TABLE Dish;
+TRUNCATE TABLE Cuisine;
+TRUNCATE TABLE Chef;
+TRUNCATE TABLE Ingredient;
+TRUNCATE TABLE Users;
+
+---------------------------------------------------------
+-- 1. INSERT PARENT TABLES
+---------------------------------------------------------
+-- Cuisine
+INSERT INTO Cuisine (name) VALUES ('Italian'); 
+INSERT INTO Cuisine (name) VALUES ('Indian');  
+INSERT INTO Cuisine (name) VALUES ('Chinese'); 
+
+-- Ingredient
+INSERT INTO Ingredient (name, unit, stock_quantity, reorder_level) VALUES ('Tomato', 'kg', 50, 10);  
+INSERT INTO Ingredient (name, unit, stock_quantity, reorder_level) VALUES ('Cheese', 'kg', 20, 5);   
+INSERT INTO Ingredient (name, unit, stock_quantity, reorder_level) VALUES ('Chicken', 'kg', 30, 5);  
+INSERT INTO Ingredient (name, unit, stock_quantity, reorder_level) VALUES ('Rice', 'kg', 100, 20);   
+INSERT INTO Ingredient (name, unit, stock_quantity, reorder_level) VALUES ('Butter', 'kg', 15, 3);   
+
+-- Chef
+INSERT INTO Chef (name, specialty) VALUES ('Giovanni Rossi', 'Italian Cuisine'); 
+INSERT INTO Chef (name, specialty) VALUES ('Rajesh Sharma', 'Indian Cuisine');   
+INSERT INTO Chef (name, specialty) VALUES ('Li Wei', 'Chinese Cuisine');        
+
+-- Users
+INSERT INTO Users (name, email, password_hash, role) VALUES ('Admin User', 'admin@example.com', 'hashed_pw1', 'admin');  
+INSERT INTO Users (name, email, password_hash, role) VALUES ('Kitchen Staff', 'staff@example.com', 'hashed_pw2', 'staff'); 
+
+---------------------------------------------------------
+-- 2. INSERT DEPENDENT TABLES
+---------------------------------------------------------
+-- Dish
+INSERT INTO Dish (cuisine_id, name, description, is_vegetarian, popularity, price, image_url)
+VALUES (1, 'Margherita Pizza', 'Classic cheese pizza', 'Y', 85, 299.00, 'pizza.jpg');  
+
+INSERT INTO Dish (cuisine_id, name, description, is_vegetarian, popularity, price, image_url)
+VALUES (2, 'Butter Chicken', 'Creamy chicken curry', 'N', 95, 399.00, 'butter_chicken.jpg'); 
+
+INSERT INTO Dish (cuisine_id, name, description, is_vegetarian, popularity, price, image_url)
+VALUES (3, 'Fried Rice', 'Veg fried rice with soy sauce', 'Y', 75, 199.00, 'fried_rice.jpg'); 
+
+-- DishIngredient
+INSERT INTO DishIngredient VALUES (1, 1, 0.5); 
+INSERT INTO DishIngredient VALUES (1, 2, 0.3); 
+INSERT INTO DishIngredient VALUES (2, 3, 0.5); 
+INSERT INTO DishIngredient VALUES (2, 5, 0.2); 
+INSERT INTO DishIngredient VALUES (3, 4, 0.5); 
+
+-- DishChef
+INSERT INTO DishChef VALUES (1, 1); 
+INSERT INTO DishChef VALUES (2, 2); 
+INSERT INTO DishChef VALUES (3, 3); 
+
+---------------------------------------------------------
+-- 3. INSERT LOG TABLES (CHILD TABLES LAST)
+---------------------------------------------------------
+-- InventoryLog
+INSERT INTO InventoryLog (ingredient_id, user_id, change_quantity, action_type, log_timestamp)
+VALUES (1, 2, -2.0, 'Used', TIMESTAMP '2025-08-28 12:00:00');  
+
+INSERT INTO InventoryLog (ingredient_id, user_id, change_quantity, action_type, log_timestamp)
+VALUES (3, 2, -1.0, 'Used', TIMESTAMP '2025-08-28 13:00:00');  
+
+INSERT INTO InventoryLog (ingredient_id, user_id, change_quantity, action_type, log_timestamp)
+VALUES (4, 1, 10.0, 'Restocked', TIMESTAMP '2025-08-28 14:00:00');  
