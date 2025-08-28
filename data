@@ -1,5 +1,5 @@
 ---------------------------------------------------------
--- 0. TRUNCATE TABLES (in dependency-safe order)
+-- 0. TRUNCATE TABLES (child → parent)
 ---------------------------------------------------------
 TRUNCATE TABLE InventoryLog;
 TRUNCATE TABLE DishChef;
@@ -11,7 +11,18 @@ TRUNCATE TABLE Ingredient;
 TRUNCATE TABLE Users;
 
 ---------------------------------------------------------
--- 1. INSERT PARENT TABLES
+-- 1. RESET SEQUENCES
+---------------------------------------------------------
+-- Oracle 12c+ syntax
+ALTER SEQUENCE cuisine_seq RESTART START WITH 1;
+ALTER SEQUENCE dish_seq RESTART START WITH 1;
+ALTER SEQUENCE ingredient_seq RESTART START WITH 1;
+ALTER SEQUENCE chef_seq RESTART START WITH 1;
+ALTER SEQUENCE user_seq RESTART START WITH 1;
+ALTER SEQUENCE log_seq RESTART START WITH 1;
+
+---------------------------------------------------------
+-- 2. INSERT PARENT TABLES
 ---------------------------------------------------------
 -- Cuisine
 INSERT INTO Cuisine (name) VALUES ('Italian'); 
@@ -35,7 +46,7 @@ INSERT INTO Users (name, email, password_hash, role) VALUES ('Admin User', 'admi
 INSERT INTO Users (name, email, password_hash, role) VALUES ('Kitchen Staff', 'staff@example.com', 'hashed_pw2', 'staff'); 
 
 ---------------------------------------------------------
--- 2. INSERT DEPENDENT TABLES
+-- 3. INSERT DEPENDENT TABLES
 ---------------------------------------------------------
 -- Dish
 INSERT INTO Dish (cuisine_id, name, description, is_vegetarian, popularity, price, image_url)
@@ -60,9 +71,8 @@ INSERT INTO DishChef VALUES (2, 2);
 INSERT INTO DishChef VALUES (3, 3); 
 
 ---------------------------------------------------------
--- 3. INSERT LOG TABLES (CHILD TABLES LAST)
+-- 4. INSERT LOG TABLES (child last)
 ---------------------------------------------------------
--- InventoryLog
 INSERT INTO InventoryLog (ingredient_id, user_id, change_quantity, action_type, log_timestamp)
 VALUES (1, 2, -2.0, 'Used', TIMESTAMP '2025-08-28 12:00:00');  
 
