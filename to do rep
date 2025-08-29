@@ -1,0 +1,15 @@
+CuisineRepository
+
+DishRepository
+
+IngredientRepository
+
+ChefRepository
+
+DishIngredientRepository
+
+DishChefRepository
+
+InventoryLogRepository
+
+UserRepository
