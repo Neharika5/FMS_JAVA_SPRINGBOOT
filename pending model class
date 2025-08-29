@@ -1,0 +1,64 @@
+@Entity
+public class DishIngredient {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne
+    @JoinColumn(name = "dish_id")
+    private Dish dish;
+
+    @ManyToOne
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
+
+    private Double requiredQuantity;
+}
+
+@Entity
+public class DishChef {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne
+    @JoinColumn(name = "dish_id")
+    private Dish dish;
+
+    @ManyToOne
+    @JoinColumn(name = "chef_id")
+    private Chef chef;
+}
+@Entity
+public class InventoryLog {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer logId;
+
+    @ManyToOne
+    @JoinColumn(name = "ingredient_id")
+    private Ingredient ingredient;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    private Double changeQuantity;
+    private String actionType;
+    private Date timestamp;
+}
+@Entity
+@Table(name = "users")  // because 'User' is a reserved keyword in some SQL dialects
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer userId;
+
+    private String name;
+    private String email;
+    private String passwordHash;
+    private String role;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<InventoryLog> inventoryLogs = new ArrayList<>();
+}
