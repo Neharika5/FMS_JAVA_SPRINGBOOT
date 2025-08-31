@@ -1,0 +1,101 @@
+package com.spring_rest_jpa.service;
+
+import com.spring_rest_jpa.dto.DishDTO;
+import com.spring_rest_jpa.model.Dish;
+import com.spring_rest_jpa.model.DishChef;
+import com.spring_rest_jpa.model.DishIngredient;
+import com.spring_rest_jpa.repository.DishRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class DishService {
+
+    @Autowired
+    private DishRepository dishRepository;
+
+    // Convert Entity to DTO
+    private DishDTO mapToDTO(Dish dish) {
+        DishDTO dto = new DishDTO();
+        dto.setId(dish.getDishId());
+        dto.setName(dish.getName());
+        dto.setPrice(dish.getPrice());
+        dto.setCuisineName(dish.getCuisine() != null ? dish.getCuisine().getName() : null);
+        dto.setIngredients(dish.getDishIngredients()
+                               .stream()
+                               .map(DishIngredient::getIngredientName)
+                               .collect(Collectors.toList()));
+        dto.setChefs(dish.getDishChefs()
+                         .stream()
+                         .map(DishChef::getChefName)
+                         .collect(Collectors.toList()));
+        return dto;
+    }
+
+    // Convert DTO to Entity (partial, for create/update)
+    private Dish mapToEntity(DishDTO dto) {
+        Dish dish = new Dish();
+        dish.setDishId(dto.getId());
+        dish.setName(dto.getName());
+        dish.setPrice(dto.getPrice());
+        // cuisine, ingredients, and chefs can be set separately if needed
+        return dish;
+    }
+
+    // Create Dish
+    public DishDTO createDish(DishDTO dto) {
+        Dish dish = mapToEntity(dto);
+        Dish savedDish = dishRepository.save(dish);
+        return mapToDTO(savedDish);
+    }
+
+    // Get All Dishes
+    public List<DishDTO> getAllDishes() {
+        return dishRepository.findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get Dish by ID
+    public DishDTO getDishById(Integer id) {
+        Dish dish = dishRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dish not found with id " + id));
+        return mapToDTO(dish);
+    }
+
+    // Update Dish
+    public DishDTO updateDish(Integer id, DishDTO dto) {
+        Dish existingDish = dishRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dish not found with id " + id));
+        existingDish.setName(dto.getName());
+        existingDish.setPrice(dto.getPrice());
+        // update cuisine, ingredients, and chefs if required
+        Dish updatedDish = dishRepository.save(existingDish);
+        return mapToDTO(updatedDish);
+    }
+
+    // Delete Dish
+    public void deleteDish(Integer id) {
+        dishRepository.deleteById(id);
+    }
+
+    // Get by cuisine
+    public List<DishDTO> getDishesByCuisine(String cuisineName) {
+        return dishRepository.findByCuisine_Name(cuisineName)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Get by vegetarian
+    public List<DishDTO> getDishesByVegetarian(Boolean isVegetarian) {
+        return dishRepository.findByIsVegetarian(isVegetarian)
+                .stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+}
