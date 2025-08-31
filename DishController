@@ -1,0 +1,59 @@
+package com.spring_rest_jpa.controller;
+
+import com.spring_rest_jpa.dto.DishDTO;
+import com.spring_rest_jpa.service.DishService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/dishes")
+public class DishController {
+
+    @Autowired
+    private DishService dishService;
+
+    // Create
+    @PostMapping
+    public DishDTO createDish(@RequestBody DishDTO dto) {
+        return dishService.createDish(dto);
+    }
+
+    // Get all
+    @GetMapping
+    public List<DishDTO> getAllDishes() {
+        return dishService.getAllDishes();
+    }
+
+    // Get by ID
+    @GetMapping("/{id}")
+    public DishDTO getDishById(@PathVariable Integer id) {
+        return dishService.getDishById(id);
+    }
+
+    // Update
+    @PutMapping("/{id}")
+    public DishDTO updateDish(@PathVariable Integer id, @RequestBody DishDTO dto) {
+        return dishService.updateDish(id, dto);
+    }
+
+    // Delete
+    @DeleteMapping("/{id}")
+    public String deleteDish(@PathVariable Integer id) {
+        dishService.deleteDish(id);
+        return "Dish deleted successfully with id: " + id;
+    }
+
+    // Get by cuisine
+    @GetMapping("/cuisine/{name}")
+    public List<DishDTO> getDishesByCuisine(@PathVariable String name) {
+        return dishService.getDishesByCuisine(name);
+    }
+
+    // Get vegetarian dishes
+    @GetMapping("/vegetarian")
+    public List<DishDTO> getVegetarianDishes(@RequestParam Boolean isVegetarian) {
+        return dishService.getDishesByVegetarian(isVegetarian);
+    }
+}
