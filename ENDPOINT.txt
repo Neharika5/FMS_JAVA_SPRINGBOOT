@@ -1,0 +1,67 @@
+1. Cuisine Endpoints
+
+GET /cuisines → List all cuisines
+
+GET /cuisines/{id} → Get details of a specific cuisine
+
+POST /cuisines → Add a new cuisine
+
+PUT /cuisines/{id} → Update a cuisine
+
+DELETE /cuisines/{id} → Delete a cuisine
+
+2. Dish Endpoints
+
+GET /dishes → List all dishes
+
+GET /dishes/{id} → Get details of a specific dish
+
+POST /dishes → Add a new dish (with cuisine and ingredients mapping)
+
+PUT /dishes/{id} → Update dish details
+
+DELETE /dishes/{id} → Delete a dish
+
+3. Ingredient / Inventory Endpoints
+
+GET /ingredients → List all ingredients with stock
+
+GET /ingredients/{id} → Get ingredient details
+
+POST /ingredients → Add a new ingredient
+
+PUT /ingredients/{id} → Update ingredient details (quantity, unit, reorder level)
+
+DELETE /ingredients/{id} → Delete an ingredient
+
+POST /ingredients/{id}/replenish → Add stock to ingredient
+
+4. Chef Endpoints
+
+GET /chefs → List all chefs
+
+GET /chefs/{id} → Get chef details
+
+POST /chefs → Add a new chef
+
+PUT /chefs/{id} → Update chef info
+
+DELETE /chefs/{id} → Remove a chef
+
+POST /chefs/{id}/assign-dish → Assign dishes to chef
+
+5. Inventory Log / Audit Endpoints
+
+GET /inventory-logs → View all inventory changes
+
+GET /inventory-logs/{id} → View specific log entry
+
+POST /inventory-logs → Manually log stock change (optional)
+
+6. Dashboard / Reports Endpoints (Optional)
+
+GET /reports/ingredient-usage → Most used ingredients
+
+GET /reports/dish-resource-intensity → Dishes consuming most stock
+
+GET /reports/chef-workload → Dishes assigned per chef
