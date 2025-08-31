@@ -1,12 +1,13 @@
-package com.spring_rest_jpa.service;
+package com.example.demo.service;
 
-import com.spring_rest_jpa.dto.DishDto;       // <-- use DishDto
-import com.spring_rest_jpa.model.Dish;
-import com.spring_rest_jpa.repository.DishRepository;
+import com.example.demo.dto.DishDto;
+import com.example.demo.model.Dish;
+import com.example.demo.repository.DishRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,68 +16,45 @@ public class DishService {
     @Autowired
     private DishRepository dishRepository;
 
-    // ===== Simple mappers (flat) =====
+    // --- Mapping Methods ---
     private DishDto toDto(Dish dish) {
-        DishDto dto = new DishDto();
-        dto.setId(dish.getDishId());
-        dto.setName(dish.getName());
-        dto.setPrice(dish.getPrice());
-        dto.setCuisineName(dish.getCuisine() != null ? dish.getCuisine().getName() : null);
-        // keeping ingredients/chefs null or empty to stay simple
-        return dto;
+        return new DishDto(dish.getDishId(), dish.getName(), dish.getDescription());
     }
 
-    private void copyFromDto(DishDto dto, Dish entity) {
-        entity.setName(dto.getName());
-        entity.setPrice(dto.getPrice());
-        // not touching cuisine / relations in this simple version
+    private Dish toEntity(DishDto dto) {
+        return new Dish(dto.getDishId(), dto.getName(), dto.getDescription());
     }
 
-    // ===== CRUD =====
-    public List<DishDto> getAll() {
+    // --- CRUD Methods ---
+    public List<DishDto> getAllDishes() {
         return dishRepository.findAll()
                 .stream()
-                .map(this::toDto)
+                .map(this::toDto)   // entity → dto
                 .collect(Collectors.toList());
     }
 
-    public DishDto getById(Integer id) {
-        Dish dish = dishRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Dish not found: " + id));
-        return toDto(dish);
+    public Optional<DishDto> getDishById(int dishId) {
+        return dishRepository.findById(dishId)
+                .map(this::toDto);   // convert only if found
     }
 
-    public DishDto create(DishDto dto) {
-        Dish dish = new Dish();
-        copyFromDto(dto, dish);
-        Dish saved = dishRepository.save(dish);
-        return toDto(saved);
+    public DishDto createDish(DishDto dishDto) {
+        Dish dish = toEntity(dishDto);
+        Dish savedDish = dishRepository.save(dish);
+        return toDto(savedDish);
     }
 
-    public DishDto update(Integer id, DishDto dto) {
-        Dish dish = dishRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Dish not found: " + id));
-        copyFromDto(dto, dish);
-        Dish updated = dishRepository.save(dish);
-        return toDto(updated);
+    public DishDto updateDish(int dishId, DishDto dishDto) {
+        return dishRepository.findById(dishId)
+                .map(existing -> {
+                    existing.setName(dishDto.getName());
+                    existing.setDescription(dishDto.getDescription());
+                    return toDto(dishRepository.save(existing));
+                })
+                .orElseThrow(() -> new RuntimeException("Dish not found with id " + dishId));
     }
 
-    public void delete(Integer id) {
-        dishRepository.deleteById(id);
-    }
-
-    // ===== Optional filters using your repository =====
-    public List<DishDto> findByCuisine(String cuisineName) {
-        return dishRepository.findByCuisine_Name(cuisineName)
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<DishDto> findByIsVegetarian(Boolean isVegetarian) {
-        return dishRepository.findByIsVegetarian(isVegetarian)
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public void deleteDish(int dishId) {
+        dishRepository.deleteById(dishId);
     }
 }
